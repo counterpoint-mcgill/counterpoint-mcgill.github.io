@@ -1,0 +1,193 @@
+# Counterpoint admin — what editors can change, and where each thing is saved.
+# The page that uses this file is index.html in the same folder.
+
+backend:
+  name: github
+  repo: Aaronshahh/counterpoint
+  branch: main
+
+site_url: https://aaronshahh.github.io/counterpoint/
+display_url: https://aaronshahh.github.io/counterpoint/
+logo:
+  src: ../assets/img/favicon.svg
+
+# Uploaded pictures
+media_folder: src/assets/img/uploads
+public_folder: /assets/img/uploads
+media_libraries:
+  default:
+    config:
+      transformations:
+        raster_image:
+          format: webp
+          quality: 85
+          width: 2400
+          height: 2400
+
+collections:
+  - name: articles
+    label: Articles
+    label_singular: Article
+    description: >-
+      Every piece on the site. To make a piece an interview, choose
+      Interviews under "Column".
+    folder: src/articles
+    extension: md
+    format: frontmatter
+    create: true
+    delete: true
+    slug: '{{title}}'
+    summary: '{{title}}'
+    fields:
+      - name: title
+        label: Headline
+      - name: description
+        label: Summary
+        widget: text
+        hint: One or two sentences. Shown under the headline and in article lists.
+      - name: date
+        label: Date
+        widget: datetime
+        type: date
+        picker_utc: true
+        hint: Articles are listed newest first.
+      - name: author
+        label: Author
+        required: false
+        hint: Leave empty to sign the piece "Counterpoint".
+      - name: column
+        label: Column
+        widget: relation
+        collection: _singletons
+        file: columns
+        value_field: '{{items.*.slug}}'
+        display_fields: ['{{items.*.title}}']
+        search_fields: ['{{items.*.title}}']
+        required: false
+        hint: Leave empty for an ordinary article.
+      - name: image
+        label: Picture
+        widget: image
+        required: false
+        hint: Optional. Without a picture the site draws its own dotted artwork.
+      - name: imageAlt
+        label: Picture description
+        required: false
+        hint: A few words saying what the picture shows, for readers who cannot see it.
+      - name: imageCredit
+        label: Picture credit
+        required: false
+      - name: cover
+        label: Artwork colour
+        widget: select
+        required: false
+        hint: Only used when there is no picture. Leave empty to let the site choose.
+        options:
+          - { label: Paper, value: paper }
+          - { label: Black, value: black }
+          - { label: Red, value: red }
+          - { label: Ruby, value: ruby }
+          - { label: Grey, value: gray }
+      - name: body
+        label: Text
+        widget: markdown
+
+singletons:
+  - name: videos
+    label: Videos
+    file: src/_data/videos.json
+    fields:
+      - name: videos
+        label: Videos
+        label_singular: Video
+        widget: list
+        root: true
+        summary: '{{title}}'
+        fields:
+          - name: title
+            label: Title
+          - name: url
+            label: YouTube link
+            hint: Paste the link from YouTube, for example https://www.youtube.com/watch?v=…
+          - name: date
+            label: Date
+            widget: datetime
+            type: date
+            picker_utc: true
+          - name: description
+            label: Description
+            widget: text
+            required: false
+
+  - name: columns
+    label: Columns
+    file: src/_data/columnList.json
+    fields:
+      - name: items
+        label: Columns
+        label_singular: Column
+        widget: list
+        summary: '{{title}}'
+        fields:
+          - name: title
+            label: Name
+            hint: For example Interviews.
+          - name: slug
+            label: Web address
+            pattern: ['^[a-z0-9]+(-[a-z0-9]+)*$', 'Lower-case letters, numbers and dashes only, for example interviews']
+            hint: >-
+              The column's page address, for example "interviews". Lower-case,
+              no spaces. Do not change it once articles are filed under it.
+          - name: label
+            label: Small label
+            default: Column
+          - name: description
+            label: Description
+            widget: text
+
+  - name: about
+    label: About page
+    file: src/about.md
+    format: frontmatter
+    fields:
+      - { name: layout, widget: hidden, default: layouts/page.njk }
+      - { name: permalink, widget: hidden, default: /about/ }
+      - { name: label, widget: hidden, default: About }
+      - name: title
+        label: Heading
+      - name: tone
+        label: Heading colour
+        widget: select
+        required: false
+        options:
+          - { label: Grey, value: gray }
+          - { label: Red, value: red }
+          - { label: Ruby, value: ruby }
+      - name: description
+        label: Summary
+        widget: text
+        hint: Used by search engines and when the page is shared.
+      - name: body
+        label: Text
+        widget: markdown
+
+  - name: site
+    label: Site settings
+    file: src/_data/site.json
+    fields:
+      - name: title
+        label: Site name
+      - name: description
+        label: One-line description
+        widget: text
+      - { name: url, widget: hidden }
+      - name: contactEmail
+        label: Contact email
+        required: false
+        hint: Messages from the Contact page are sent here. Leave empty to hide the form.
+      - name: instagram
+        label: Instagram link
+        required: false
+      - name: location
+        label: Location
+        required: false

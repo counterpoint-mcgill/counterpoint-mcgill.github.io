@@ -1,0 +1,10 @@
+{
+  "items": [
+    {
+      "slug": "interviews",
+      "title": "Interviews",
+      "label": "Column",
+      "description": "Long-form conversations, in the subject's own words."
+    }
+  ]
+}

@@ -28,6 +28,10 @@ export default function (cfg) {
   cfg.addPassthroughCopy("src/assets/css");
   cfg.addPassthroughCopy("src/assets/js");
   cfg.addPassthroughCopy("src/assets/img");
+
+  // The editors' admin page is plain static files, copied as they are
+  cfg.ignores.add("src/admin/**");
+  cfg.addPassthroughCopy("src/admin");
   for (const f of FONTS) {
     cfg.addPassthroughCopy({
       [`${FONT_DIR}/courier-prime-latin-${f}.woff2`]: `assets/fonts/courier-prime-${f}.woff2`,

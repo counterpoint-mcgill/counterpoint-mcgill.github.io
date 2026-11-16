@@ -1,0 +1,275 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="robots" content="noindex, nofollow">
+  <title>Counterpoint — Admin</title>
+  <link rel="icon" href="../assets/img/favicon.svg">
+  <style>
+    @font-face {
+      font-family: "Courier Prime";
+      src: url("../assets/fonts/courier-prime-400-normal.woff2") format("woff2");
+      font-display: swap;
+    }
+    .gate {
+      position: fixed; inset: 0; z-index: 99999; overflow: auto;
+      display: grid; place-items: center; padding: 24px;
+      background: #F5F4F2; color: #0A0A0A;
+      font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+    }
+    .gate[hidden] { display: none; }
+    .gate * { box-sizing: border-box; }
+    .gate__box { width: 100%; max-width: 420px; }
+    .gate__mono {
+      font-family: "Courier Prime", "Courier New", monospace;
+      font-size: 12px; letter-spacing: .08em; text-transform: uppercase; color: #6B6765;
+      margin: 0 0 14px;
+    }
+    .gate h1 { font-size: clamp(44px, 12vw, 68px); line-height: .92; letter-spacing: -.04em; margin: 0 0 28px; }
+    .gate h1 i { font-style: normal; color: #C4001A; }
+    .gate p { font-size: 15px; line-height: 1.5; margin: 0 0 16px; }
+    .gate ol { font-size: 14px; line-height: 1.5; padding-left: 20px; margin: 0 0 20px; color: #2C2929; }
+    .gate li { margin-bottom: 6px; }
+    .gate a { color: #C4001A; }
+    .gate label { display: block; margin: 0 0 14px; }
+    .gate label span {
+      display: block; margin-bottom: 6px;
+      font-family: "Courier Prime", "Courier New", monospace;
+      font-size: 12px; letter-spacing: .08em; text-transform: uppercase;
+    }
+    .gate input {
+      width: 100%; padding: 14px 12px; font: inherit; font-size: 17px;
+      background: #fff; color: #0A0A0A; border: 1px solid #0A0A0A; border-radius: 0;
+    }
+    .gate input:focus { outline: 3px solid #C4001A; outline-offset: 1px; }
+    .gate button {
+      font: inherit; font-size: 16px; font-weight: 700; cursor: pointer;
+      width: 100%; padding: 15px 12px; border: 0; border-radius: 0;
+      background: #C4001A; color: #fff;
+    }
+    .gate button:hover { background: #70000E; }
+    .gate button[disabled] { opacity: .6; cursor: wait; }
+    .gate__link {
+      width: auto !important; padding: 0 !important; margin-top: 22px;
+      background: none !important; color: #6B6765 !important;
+      font-size: 13px !important; font-weight: 400 !important; text-decoration: underline;
+    }
+    .gate__msg { min-height: 22px; margin: 14px 0 0 !important; font-size: 14px !important; color: #C4001A; }
+  </style>
+</head>
+<body>
+  <div class="gate" id="gate">
+    <div class="gate__box">
+      <p class="gate__mono">Counterpoint · Admin</p>
+
+      <!-- Shown to the team: one password -->
+      <form id="unlock" hidden>
+        <h1>Team only<i>.</i></h1>
+        <label><span>Password</span>
+          <input id="pw" type="password" autocomplete="current-password" required>
+        </label>
+        <button type="submit">Enter</button>
+        <p class="gate__msg" id="unlock-msg" role="alert"></p>
+        <button type="button" class="gate__link" id="to-setup">Change the password or replace the key</button>
+      </form>
+
+      <!-- Shown once, to the site owner -->
+      <form id="setup" hidden>
+        <h1>Set up<i>.</i></h1>
+        <p>One time only. The site needs a GitHub key so it can save the team's edits. The key is locked with the password you choose here; the team only ever types the password.</p>
+        <ol>
+          <li><a id="token-link" target="_blank" rel="noopener">Create a key on GitHub</a> (sign in as the owner of the site).</li>
+          <li>Under <b>Repository access</b> pick <b>Only select repositories</b> and choose <b>counterpoint</b>.</li>
+          <li>Under <b>Permissions → Repository</b>, set <b>Contents</b> to <b>Read and write</b>.</li>
+          <li>Press <b>Generate token</b>, copy it, and paste it below.</li>
+        </ol>
+        <label><span>GitHub key</span>
+          <input id="token" type="password" autocomplete="off" placeholder="github_pat_…" required>
+        </label>
+        <label><span>Team password</span>
+          <input id="pw1" type="password" autocomplete="new-password" required>
+        </label>
+        <label><span>Team password, again</span>
+          <input id="pw2" type="password" autocomplete="new-password" required>
+        </label>
+        <button type="submit">Save and enter</button>
+        <p class="gate__msg" id="setup-msg" role="alert"></p>
+        <button type="button" class="gate__link" id="to-unlock" hidden>Back to the password</button>
+      </form>
+
+      <p id="loading">Loading…</p>
+    </div>
+  </div>
+
+  <script>
+  (function () {
+    var REPO = "Aaronshahh/counterpoint";
+    var BRANCH = "main";
+    var KEY_PATH = "src/admin/key.json";
+    var CMS_USER = "sveltia-cms.user";   // where the editor looks for a signed-in user
+    var SESSION = "cp-admin-key";        // keeps this tab unlocked until it is closed
+    var ROUNDS = 600000;
+
+    var $ = function (id) { return document.getElementById(id); };
+    var gate = $("gate"), unlock = $("unlock"), setup = $("setup"), loading = $("loading");
+    var locked = null; // the encrypted key, once fetched
+
+    $("token-link").href = "https://github.com/settings/personal-access-tokens/new?name=Counterpoint+admin&description=Lets+the+Counterpoint+admin+page+save+edits&contents=write";
+
+    /* ── Encryption: the password turns into the key that opens the GitHub key ── */
+
+    // "Benjamin Button", "benjamin button" and "benjaminbutton" all count as the same password
+    function tidy(pw) { return pw.toLowerCase().replace(/\s+/g, ""); }
+    function b64(buf) { return btoa(String.fromCharCode.apply(null, new Uint8Array(buf))); }
+    function unb64(str) { return Uint8Array.from(atob(str), function (c) { return c.charCodeAt(0); }); }
+
+    function derive(pw, salt, rounds) {
+      return crypto.subtle.importKey("raw", new TextEncoder().encode(tidy(pw)), "PBKDF2", false, ["deriveKey"])
+        .then(function (base) {
+          return crypto.subtle.deriveKey(
+            { name: "PBKDF2", hash: "SHA-256", salt: salt, iterations: rounds },
+            base, { name: "AES-GCM", length: 256 }, false, ["encrypt", "decrypt"]);
+        });
+    }
+    function lock(token, pw) {
+      var salt = crypto.getRandomValues(new Uint8Array(16));
+      var iv = crypto.getRandomValues(new Uint8Array(12));
+      return derive(pw, salt, ROUNDS).then(function (key) {
+        return crypto.subtle.encrypt({ name: "AES-GCM", iv: iv }, key, new TextEncoder().encode(token));
+      }).then(function (data) {
+        return { v: 1, rounds: ROUNDS, salt: b64(salt), iv: b64(iv), data: b64(data) };
+      });
+    }
+    function open(box, pw) {
+      return derive(pw, unb64(box.salt), box.rounds).then(function (key) {
+        return crypto.subtle.decrypt({ name: "AES-GCM", iv: unb64(box.iv) }, key, unb64(box.data));
+      }).then(function (plain) { return new TextDecoder().decode(plain); });
+    }
+
+    /* ── Screens ── */
+
+    function show(which) {
+      loading.hidden = true;
+      unlock.hidden = which !== unlock;
+      setup.hidden = which !== setup;
+      $("to-unlock").hidden = !locked;
+      var first = which.querySelector("input");
+      if (first) first.focus();
+    }
+
+    function enter(token) {
+      try {
+        sessionStorage.setItem(SESSION, token);
+        localStorage.setItem(CMS_USER, JSON.stringify({ backendName: "github", token: token }));
+      } catch (e) {}
+      var s = document.createElement("script");
+      s.src = "https://unpkg.com/@sveltia/cms/dist/sveltia-cms.js";
+      s.onload = function () { gate.hidden = true; };
+      s.onerror = function () {
+        loading.hidden = false;
+        loading.textContent = "The editor could not be loaded. Check your connection and reload the page.";
+      };
+      unlock.hidden = setup.hidden = true;
+      loading.hidden = false;
+      loading.textContent = "Opening the editor…";
+      document.body.appendChild(s);
+    }
+
+    // The key should not outlive the tab
+    window.addEventListener("pagehide", function () {
+      try { localStorage.removeItem(CMS_USER); } catch (e) {}
+    });
+
+    function getJSON(url) {
+      return fetch(url, { cache: "no-store" }).then(function (r) {
+        if (!r.ok) throw new Error(r.status);
+        return r.json();
+      });
+    }
+
+    /* ── Start ── */
+
+    var kept = null;
+    try {
+      kept = sessionStorage.getItem(SESSION);
+      if (!kept) localStorage.removeItem(CMS_USER);
+    } catch (e) {}
+
+    if (!window.isSecureContext || !window.crypto || !crypto.subtle) {
+      loading.textContent = "This page only works over a secure (https) connection.";
+    } else if (kept) {
+      enter(kept);
+    } else {
+      // The published copy first; straight from GitHub if the site has not rebuilt yet
+      getJSON("key.json")
+        .catch(function () { return getJSON("https://raw.githubusercontent.com/" + REPO + "/" + BRANCH + "/" + KEY_PATH); })
+        .then(function (box) { locked = box; show(unlock); })
+        .catch(function () { show(setup); });
+    }
+
+    /* ── Team: type the password ── */
+
+    unlock.addEventListener("submit", function (e) {
+      e.preventDefault();
+      var btn = unlock.querySelector("[type=submit]"), msg = $("unlock-msg");
+      btn.disabled = true; msg.textContent = "";
+      open(locked, $("pw").value).then(enter, function () {
+        setTimeout(function () {
+          btn.disabled = false;
+          msg.textContent = "That password is not right.";
+          $("pw").select();
+        }, 600);
+      });
+    });
+    $("to-setup").addEventListener("click", function () { show(setup); });
+    $("to-unlock").addEventListener("click", function () { show(unlock); });
+
+    /* ── Owner: lock a GitHub key with the team password and save it to the site ── */
+
+    function gh(path, token, opts) {
+      opts = opts || {};
+      opts.headers = { Authorization: "Bearer " + token, Accept: "application/vnd.github+json" };
+      opts.cache = "no-store";
+      return fetch("https://api.github.com/repos/" + REPO + path, opts);
+    }
+
+    setup.addEventListener("submit", function (e) {
+      e.preventDefault();
+      var btn = setup.querySelector("[type=submit]"), msg = $("setup-msg");
+      var token = $("token").value.trim(), pw = $("pw1").value;
+      var fail = function (text) { btn.disabled = false; msg.textContent = text; };
+      msg.textContent = "";
+      if (pw !== $("pw2").value) return fail("The two passwords do not match.");
+      if (tidy(pw).length < 8) return fail("Please use a password of at least 8 characters.");
+      btn.disabled = true;
+
+      gh("", token).then(function (r) {
+        if (r.status === 401) throw new Error("GitHub did not accept that key. Copy it again and retry.");
+        if (!r.ok) throw new Error("That key cannot see the counterpoint repository. Check step 2.");
+        return gh("/contents/" + KEY_PATH + "?ref=" + BRANCH, token);
+      }).then(function (r) {
+        return r.ok ? r.json() : {};
+      }).then(function (existing) {
+        return lock(token, pw).then(function (box) {
+          return gh("/contents/" + KEY_PATH, token, {
+            method: "PUT",
+            body: JSON.stringify({
+              message: "Update the admin key",
+              branch: BRANCH,
+              sha: existing.sha,
+              content: btoa(JSON.stringify(box, null, 2) + "\n"),
+            }),
+          });
+        });
+      }).then(function (r) {
+        if (!r.ok) throw new Error("That key is not allowed to save. Check that Contents is set to Read and write (step 3).");
+        enter(token);
+      }).catch(function (err) {
+        fail(err.message || "Something went wrong. Please try again.");
+      });
+    });
+  })();
+  </script>
+</body>
+</html>
