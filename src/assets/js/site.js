@@ -117,7 +117,7 @@
   /* ═════════ Motion ═════════ */
 
   if (calm || !("IntersectionObserver" in window)) {
-    root.classList.remove("js", "is-entering");
+    root.classList.remove("js", "is-entering", "is-booting");
     return;
   }
 
@@ -216,9 +216,19 @@
   }
 
   // Once the first screen has made its entrance, drop the curtain delay
-  setTimeout(function () {
-    root.classList.remove("is-entering");
-  }, 1500);
+  var booting = root.classList.contains("is-booting");
+  function endIntro() {
+    root.classList.remove("is-entering", "is-booting");
+  }
+  setTimeout(endIntro, booting ? 3400 : 1500);
+  var intro = document.querySelector(".intro");
+  if (booting && intro) {
+    // A tap or click skips the opening sequence
+    intro.addEventListener("click", function () {
+      intro.classList.add("is-skipped");
+      setTimeout(endIntro, 350);
+    });
+  }
 
   /* Scroll: progress bar, hiding masthead, parallax, ticker speed */
 
@@ -318,6 +328,7 @@
     try {
       sessionStorage.setItem("cp-scene", a.dataset.scene || "");
     } catch (err) {}
+    a.classList.add("is-going"); // lets the tapped row's record spin on the way out
     root.classList.remove("is-entering");
     root.classList.add("is-leaving");
     setTimeout(function () {
@@ -328,7 +339,10 @@
   // Coming back with the browser's Back button: make sure the curtain is gone
   window.addEventListener("pageshow", function (e) {
     if (!e.persisted) return;
-    root.classList.remove("is-leaving", "is-entering");
+    root.classList.remove("is-leaving", "is-entering", "is-booting");
+    $$(".is-going").forEach(function (el) {
+      el.classList.remove("is-going");
+    });
     try {
       sessionStorage.removeItem("cp-scene");
     } catch (err) {}

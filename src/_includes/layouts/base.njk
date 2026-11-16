@@ -8,7 +8,7 @@
 <html lang="en">
 <head>
   <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
   <title>{{ pageTitle }}</title>
   <meta name="description" content="{{ pageDesc }}">
   <meta property="og:title" content="{{ title or site.title }}">
@@ -33,13 +33,30 @@
           sessionStorage.removeItem("cp-scene");
           d.classList.add("is-entering");
           window.cpScene = scene;
+        } else if (!sessionStorage.getItem("cp-intro") && !matchMedia("(prefers-reduced-motion: reduce)").matches) {
+          /* First page of a visit: play the opening sequence */
+          d.classList.add("is-booting");
         }
+        sessionStorage.setItem("cp-intro", "1");
       } catch (e) {}
     })(document.documentElement);
   </script>
 </head>
 <body>
   <a class="skip" href="#main">Skip to content</a>
+
+  {# Opening sequence, shown once per visit #}
+  <div class="intro" aria-hidden="true">
+    <div class="intro__red"></div>
+    <div class="intro__black">
+      <p class="intro__top mono"><span>{{ site.title }}</span><span>Est. {{ build.year }}</span></p>
+      <div class="intro__stage">
+        <p class="intro__word">{% for ch in site.title | list %}<span style="--c:{{ loop.index0 }}">{{ ch }}</span>{% if loop.index == 7 and loop.length > 9 %}<br>{% endif %}{% endfor %}<i></i></p>
+        <div class="intro__wave">{{ site.title | wave | safe }}</div>
+      </div>
+      <p class="intro__base mono"><span>Articles / Interviews / Conversations</span><span class="intro__bar"></span></p>
+    </div>
+  </div>
 
   <div class="curtain" aria-hidden="true">
     <div class="curtain__panel curtain__panel--red"></div>
@@ -69,6 +86,7 @@
         <li><a href="{{ item.url }}" data-scene="{{ item.label }}"{% if item.special %} class="is-special"{% endif %}><span>{{ item.label }}</span><span class="contents__n">{{ loop.index | pad }}</span></a></li>
         {%- endfor %}
       </ol>
+      <p class="mono menu__foot">{{ site.description }}</p>
     </nav>
   </div>
 
@@ -102,6 +120,6 @@
     </div>
   </footer>
 
-  <script src="/assets/js/site.js" defer onerror="document.documentElement.classList.remove('js','is-entering')"></script>
+  <script src="/assets/js/site.js" defer onerror="document.documentElement.classList.remove('js','is-entering','is-booting')"></script>
 </body>
 </html>

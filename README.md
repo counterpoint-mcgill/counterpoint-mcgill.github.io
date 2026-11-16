@@ -45,6 +45,8 @@ The four articles there now are samples. Delete them when real ones are ready.
 | Add another column | `src/_data/columns.json` (it gets its own page, menu button and home page band) |
 | Colours and type | the top of `src/assets/css/style.css` |
 | The colour of a page's heading band | `tone:` at the top of the page file (`gray`, `red` or `ruby`; leave it out for plain paper). Each page's dotted waveform is drawn automatically from its title |
+| The opening sequence (plays once per visit) | the "Opening sequence" section at the bottom of `src/assets/css/style.css` |
+| The phone layout | the "Phones" section in `src/assets/css/style.css` |
 | Animation (speeds, effects) | the "Motion" sections at the bottom of `src/assets/css/style.css` and `src/assets/js/site.js` |
 
 ### Contact form
