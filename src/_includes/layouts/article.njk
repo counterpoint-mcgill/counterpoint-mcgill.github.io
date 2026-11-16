@@ -23,7 +23,7 @@ layout: layouts/base.njk
   </header>
 
   <figure class="article__cover wrap">
-    <img class="cover" src="{{ image or ('/assets/covers/' + page.fileSlug + '.svg') }}" alt="{{ imageAlt or '' }}" width="1600" height="900">
+    <span class="cover-wrap"><img class="cover" src="{{ image or ('/assets/covers/' + page.fileSlug + '.svg') }}" alt="{{ imageAlt or '' }}" width="1600" height="900"></span>
     {% if imageCredit %}<figcaption class="mono">{{ imageCredit }}</figcaption>{% endif %}
   </figure>
 
@@ -34,8 +34,8 @@ layout: layouts/base.njk
   <footer class="article__foot wrap">
     <button class="btn" type="button" data-copy-link>Copy link</button>
     <nav class="pager mono" aria-label="More articles">
-      {% if older %}<a class="pager__prev" href="{{ older.url }}"><span>&larr; Previous</span><strong>{{ older.data.title }}</strong></a>{% else %}<span></span>{% endif %}
-      {% if newer %}<a class="pager__next" href="{{ newer.url }}"><span>Next &rarr;</span><strong>{{ newer.data.title }}</strong></a>{% endif %}
+      {% if older %}<a class="pager__prev" href="{{ older.url }}" data-scene="{{ older.data.title }}"><span>&larr; Previous</span><strong>{{ older.data.title }}</strong></a>{% else %}<span></span>{% endif %}
+      {% if newer %}<a class="pager__next" href="{{ newer.url }}" data-scene="{{ newer.data.title }}"><span>Next &rarr;</span><strong>{{ newer.data.title }}</strong></a>{% endif %}
     </nav>
   </footer>
 </article>

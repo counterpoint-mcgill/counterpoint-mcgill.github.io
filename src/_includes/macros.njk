@@ -2,7 +2,7 @@
 {% macro row(post, n, columns) %}
 {%- set col = columns | findColumn(post.data.column) if post.data.column -%}
 <li class="row">
-  <a href="{{ post.url }}">
+  <a href="{{ post.url }}" data-scene="{{ post.data.title }}" data-cover="{{ (post.data.image or ('/assets/covers/' + post.fileSlug + '.svg')) | url }}">
     <span class="row__n mono">{{ n | pad }}</span>
     <span class="row__t">{{ post.data.title }}</span>
     <span class="row__k mono{% if col %} is-special{% endif %}">{{ col.title if col else "Article" }}</span>
@@ -13,14 +13,14 @@
 
 {# Picture for an article: its own photo, or generated halftone artwork #}
 {% macro cover(post, eager) %}
-<img class="cover" src="{{ post.data.image or ('/assets/covers/' + post.fileSlug + '.svg') }}" alt="{{ post.data.imageAlt or '' }}" width="1600" height="900"{% if not eager %} loading="lazy"{% endif %}>
+<span class="cover-wrap"><img class="cover" src="{{ post.data.image or ('/assets/covers/' + post.fileSlug + '.svg') }}" alt="{{ post.data.imageAlt or '' }}" width="1600" height="900"{% if not eager %} loading="lazy"{% endif %}></span>
 {% endmacro %}
 
 {# Article card with picture #}
 {% macro card(post, columns) %}
 {%- set col = columns | findColumn(post.data.column) if post.data.column -%}
 <article class="card">
-  <a href="{{ post.url }}">
+  <a href="{{ post.url }}" data-scene="{{ post.data.title }}">
     {{ cover(post) }}
     <p class="card__meta mono"><span{% if col %} class="is-special"{% endif %}>{{ col.title if col else "Article" }}</span><span>{{ post.date | readableDate }}</span></p>
     <h3 class="card__title">{{ post.data.title }}</h3>

@@ -293,9 +293,17 @@ main {
   display: flex;
   justify-content: space-between;
   gap: 16px;
+  position: relative;
   padding-top: 10px;
   margin-bottom: clamp(20px, 3vw, 36px);
-  border-top: 1px solid currentColor;
+}
+.section-label::before {
+  content: "";
+  position: absolute;
+  inset: 0 0 auto 0;
+  height: 1px;
+  background: currentColor;
+  transform-origin: left;
 }
 
 .btn {
@@ -328,11 +336,16 @@ main {
   color: var(--ink);
 }
 
+.cover-wrap {
+  display: block;
+  aspect-ratio: 16 / 9;
+  overflow: hidden;
+  background: var(--gray);
+}
 .cover {
   width: 100%;
-  aspect-ratio: 16 / 9;
+  height: 100%;
   object-fit: cover;
-  background: var(--gray);
 }
 
 .empty {
@@ -346,11 +359,13 @@ main {
 .hero {
   padding-top: clamp(8px, 2vw, 32px);
 }
+.hero__logo {
+  mix-blend-mode: multiply;
+}
 .hero__logo img {
   width: 100%;
   max-width: 1180px;
   margin-inline: auto;
-  mix-blend-mode: multiply;
 }
 .hero__notes {
   display: grid;
@@ -975,7 +990,7 @@ main > .page-head + section {
   .lead__link {
     grid-template-columns: 1fr;
   }
-  .lead__link .cover {
+  .lead__link .cover-wrap {
     order: -1;
   }
   .band__head,
@@ -1025,8 +1040,322 @@ main > .page-head + section {
   }
 }
 
-@media (prefers-reduced-motion: reduce) {
-  * {
-    transition: none !important;
+
+/* ═════════ Motion ═════════
+   Everything below is animation. It only applies when JavaScript has loaded
+   (the "js" class) and the visitor has not asked their device to reduce motion. */
+
+:root {
+  --ease: cubic-bezier(0.16, 1, 0.3, 1); /* fast start, long soft landing */
+  --bump: cubic-bezier(0.2, 1.35, 0.35, 1); /* overshoots slightly, then settles */
+  --inout: cubic-bezier(0.76, 0, 0.24, 1);
+}
+
+/* Reading progress along the bottom edge of the masthead */
+.progress {
+  position: absolute;
+  left: 0;
+  bottom: -2px;
+  width: 100%;
+  height: 3px;
+  background: var(--red);
+  transform: scaleX(var(--progress, 0));
+  transform-origin: left;
+  pointer-events: none;
+}
+.masthead {
+  transition: transform 0.5s var(--ease);
+}
+.masthead.is-hidden {
+  transform: translateY(-105%);
+}
+
+/* Nav underline sweep */
+.nav a {
+  position: relative;
+}
+.nav a::after {
+  content: "";
+  position: absolute;
+  left: 16px;
+  right: 16px;
+  bottom: -5px;
+  height: 1px;
+  background: var(--red);
+  transform: scaleX(0);
+  transform-origin: right;
+  transition: transform 0.4s var(--ease);
+}
+.nav a:last-child::after {
+  right: 0;
+}
+.nav a:hover::after {
+  transform: scaleX(1);
+  transform-origin: left;
+}
+
+/* Moving text bands */
+.marquee {
+  overflow: hidden;
+  white-space: nowrap;
+}
+.marquee__track {
+  display: inline-flex;
+  will-change: transform;
+}
+.marquee i {
+  display: inline-block;
+  width: 0.36em;
+  height: 0.36em;
+  margin: 0 0.5em 0.12em;
+  border-radius: 50%;
+  background: var(--red);
+  vertical-align: middle;
+}
+.marquee--ticker {
+  margin-top: clamp(28px, 4vw, 56px);
+  padding: 11px 0 9px;
+  background: var(--red);
+  color: var(--paper);
+}
+.marquee--ticker i {
+  background: var(--ink);
+}
+main > .marquee + section {
+  margin-top: var(--section);
+}
+.marquee--big {
+  margin: 0 calc(-1 * var(--pad)) clamp(32px, 5vw, 64px);
+  padding-bottom: clamp(20px, 3vw, 40px);
+  border-bottom: 1px solid #3a3636;
+  font-size: clamp(56px, 11vw, 190px);
+  line-height: 0.9;
+  letter-spacing: -0.06em;
+  text-transform: uppercase;
+}
+
+/* Thumbnail that follows the cursor over the article index */
+.peek {
+  position: fixed;
+  top: 0;
+  left: 0;
+  z-index: 30;
+  width: min(26vw, 380px);
+  aspect-ratio: 16 / 9;
+  overflow: hidden;
+  pointer-events: none;
+  opacity: 0;
+  scale: 0.7;
+  transition: opacity 0.3s, scale 0.5s var(--ease);
+}
+.peek.is-on {
+  opacity: 1;
+  scale: 1;
+}
+.peek img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+/* Scene-change curtain */
+.curtain {
+  position: fixed;
+  inset: 0;
+  z-index: 200;
+  pointer-events: none;
+  display: none;
+}
+.curtain__panel {
+  position: absolute;
+  inset: 0;
+  transform: translateY(101%);
+}
+.curtain__panel--red {
+  background: var(--red);
+}
+.curtain__panel--black {
+  display: flex;
+  align-items: flex-end;
+  padding: var(--pad);
+  background: var(--ink);
+  color: var(--paper);
+}
+.curtain__label {
+  max-width: 14ch;
+  font-size: clamp(44px, 9vw, 150px);
+  line-height: 0.86;
+  letter-spacing: -0.06em;
+  text-transform: uppercase;
+  overflow-wrap: anywhere;
+}
+
+@keyframes curtain-in {
+  from { transform: translateY(101%); }
+  to { transform: translateY(0); }
+}
+@keyframes curtain-out {
+  from { transform: translateY(0); }
+  to { transform: translateY(-101%); }
+}
+@keyframes label-in {
+  from { opacity: 0; transform: translateY(0.5em); }
+  to { opacity: 1; transform: none; }
+}
+@keyframes marquee {
+  to { transform: translateX(-50%); }
+}
+@keyframes menu-item {
+  from { opacity: 0; transform: translateY(0.6em); }
+  to { opacity: 1; transform: none; }
+}
+@keyframes menu-open {
+  from { clip-path: inset(0 0 100% 0); }
+  to { clip-path: inset(0 0 0 0); }
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .marquee__track {
+    animation: marquee 40s linear infinite;
+  }
+  .marquee--big .marquee__track {
+    animation-duration: 60s;
+  }
+
+  /* Curtain: red then black rise to cover the page; on the next page
+     black then red lift away */
+  .js .curtain {
+    display: block;
+  }
+  .is-leaving .curtain__panel--red {
+    animation: curtain-in 0.55s var(--inout) both;
+  }
+  .is-leaving .curtain__panel--black {
+    animation: curtain-in 0.55s var(--inout) 0.12s both;
+  }
+  .is-leaving .curtain__label {
+    animation: label-in 0.5s var(--ease) 0.35s both;
+  }
+  .is-entering .curtain__panel--black {
+    animation: curtain-out 0.7s var(--inout) 0.2s both;
+  }
+  .is-entering .curtain__panel--red {
+    animation: curtain-out 0.7s var(--inout) 0.32s both;
+  }
+  /* Hold the page's own entrance until the curtain is lifting */
+  .is-entering {
+    --d: 0.65s;
+  }
+
+  /* Mobile menu */
+  .menu:not([hidden]) {
+    animation: menu-open 0.6s var(--inout) both;
+  }
+  .menu:not([hidden]) li {
+    animation: menu-item 0.7s var(--ease) both;
+    animation-delay: calc(0.18s + var(--n, 0) * 55ms);
+  }
+
+  /* Headlines: each word bumps up from behind a mask */
+  .js .w {
+    display: inline-block;
+    overflow: hidden;
+    vertical-align: top;
+    padding: 0.14em 0.07em 0.16em;
+    margin: -0.14em -0.07em -0.16em;
+  }
+  .js .w > span {
+    display: inline-block;
+    transform: translateY(125%) rotate(5deg);
+    transform-origin: left bottom;
+    transition: transform 1.1s var(--bump);
+    transition-delay: calc(var(--d, 0.05s) + var(--i, 0) * 75ms);
+  }
+  .js .split.in .w > span {
+    transform: none;
+  }
+
+  /* Rise: fade and slide up as the element scrolls into view */
+  .js .rv {
+    opacity: 0;
+    transform: translateY(36px);
+    transition: opacity 0.9s var(--ease), transform 1.1s var(--ease);
+    transition-delay: calc(var(--d, 0.05s) + var(--i, 0) * 80ms);
+  }
+  .js .rv.in {
+    opacity: 1;
+    transform: none;
+  }
+
+  /* Rules draw across; their labels follow */
+  .js .rv-line::before {
+    transform: scaleX(0);
+    transition: transform 1.3s var(--inout);
+    transition-delay: var(--d, 0.05s);
+  }
+  .js .rv-line > * {
+    opacity: 0;
+    transform: translateY(12px);
+    transition: opacity 0.8s var(--ease), transform 0.8s var(--ease);
+    transition-delay: calc(var(--d, 0.05s) + 0.25s);
+  }
+  .js .rv-line.in::before {
+    transform: none;
+  }
+  .js .rv-line.in > * {
+    opacity: 1;
+    transform: none;
+  }
+
+  /* Pictures wipe open from the bottom edge */
+  .js .rv-clip {
+    clip-path: inset(100% 0 0 0);
+    transition: clip-path 1.3s var(--inout);
+    transition-delay: calc(var(--d, 0.05s) + 0.1s);
+  }
+  .js .rv-clip.in {
+    clip-path: inset(0 0 0 0);
+  }
+
+  /* The logo opens outward from its centre, like a sound starting */
+  .js .rv-open {
+    clip-path: inset(0 50% 0 50%);
+    transition: clip-path 1.8s var(--inout);
+    transition-delay: var(--d, 0.05s);
+  }
+  .js .rv-open.in {
+    clip-path: inset(0 0 0 0);
+  }
+
+  /* Index rows: the rule draws in under each row */
+  .js .row.rv a {
+    border-bottom-color: transparent;
+    background: linear-gradient(var(--ink), var(--ink)) left bottom / 0% 1px no-repeat;
+    transition: color 0.15s, padding 0.3s var(--ease), background-size 1.2s var(--inout);
+    transition-delay: 0s, 0s, calc(var(--d, 0.05s) + var(--i, 0) * 80ms);
+  }
+  .js .row.rv.in a {
+    background-size: 100% 1px;
+  }
+
+  /* Hover life */
+  .cover {
+    transition: scale 1.2s var(--ease);
+  }
+  a:hover .cover {
+    scale: 1.06;
+  }
+  .btn--red,
+  .form .btn {
+    transition: background 0.15s, color 0.15s, border-color 0.15s, letter-spacing 0.4s var(--ease);
+  }
+  .btn--red:hover {
+    letter-spacing: 0.12em;
+  }
+  .contents a span:first-child {
+    transition: transform 0.5s var(--ease);
+  }
+  .contents a:hover span:first-child {
+    transform: translateX(0.3em);
   }
 }

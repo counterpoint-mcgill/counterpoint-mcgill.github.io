@@ -44,6 +44,7 @@ The four articles there now are samples. Delete them when real ones are ready.
 | Add a video | `src/_data/videos.json`, e.g. `[{ "title": "Name", "url": "https://youtu.be/...", "date": "2026-11-20" }]` |
 | Add another column | `src/_data/columns.json` (it gets its own page, menu button and home page band) |
 | Colours and type | the top of `src/assets/css/style.css` |
+| Animation (speeds, effects) | the "Motion" sections at the bottom of `src/assets/css/style.css` and `src/assets/js/site.js` |
 
 ### Contact form
 

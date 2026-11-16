@@ -22,18 +22,37 @@
   <link rel="alternate" type="application/atom+xml" title="{{ site.title }}" href="/feed.xml">
   <link rel="preload" href="/assets/fonts/courier-prime-400-normal.woff2" as="font" type="font/woff2" crossorigin>
   <link rel="stylesheet" href="/assets/css/style.css">
+  <script>
+    /* Runs before the page paints: switches on animation styles, and shows the
+       scene-change curtain if we arrived by clicking a link within the site. */
+    (function (d) {
+      d.classList.add("js");
+      try {
+        if (sessionStorage.getItem("cp-scene")) {
+          sessionStorage.removeItem("cp-scene");
+          d.classList.add("is-entering");
+        }
+      } catch (e) {}
+    })(document.documentElement);
+  </script>
 </head>
 <body>
   <a class="skip" href="#main">Skip to content</a>
+
+  <div class="curtain" aria-hidden="true">
+    <div class="curtain__panel curtain__panel--red"></div>
+    <div class="curtain__panel curtain__panel--black"><span class="curtain__label">{{ title or site.title }}</span></div>
+  </div>
 
   <header class="masthead">
     <a class="wordmark" href="/" aria-label="{{ site.title }} — home">Counterpoint<span aria-hidden="true">.</span></a>
     <nav class="nav" aria-label="Main">
       {%- for item in nav %}
-      <a href="{{ item.url }}"{% if item.special %} class="is-special"{% endif %}{% if current == item.url %} aria-current="page"{% endif %}>{{ item.label }}</a>
+      <a href="{{ item.url }}" data-scene="{{ item.label }}"{% if item.special %} class="is-special"{% endif %}{% if current == item.url %} aria-current="page"{% endif %}>{{ item.label }}</a>
       {%- endfor %}
     </nav>
     <button class="menu-btn" type="button" aria-expanded="false" aria-controls="menu">Menu</button>
+    <span class="progress" aria-hidden="true"></span>
   </header>
 
   <div class="menu" id="menu" hidden>
@@ -41,7 +60,7 @@
       <p class="mono menu__head"><span>{{ site.title }}</span><span>Contents</span></p>
       <ol class="contents">
         {%- for item in nav %}
-        <li><a href="{{ item.url }}"{% if item.special %} class="is-special"{% endif %}><span>{{ item.label }}</span><span class="contents__n">{{ loop.index | pad }}</span></a></li>
+        <li><a href="{{ item.url }}" data-scene="{{ item.label }}"{% if item.special %} class="is-special"{% endif %}><span>{{ item.label }}</span><span class="contents__n">{{ loop.index | pad }}</span></a></li>
         {%- endfor %}
       </ol>
     </nav>
@@ -52,11 +71,18 @@
   </main>
 
   <footer class="footer">
+    <div class="marquee marquee--big" aria-hidden="true">
+      <div class="marquee__track">
+        {%- for half in range(2) %}
+        <span>{% for n in range(3) %}{{ site.title }} <i></i> {% for item in nav %}{% if item.url != "/" %}{{ item.label }} <i></i> {% endif %}{% endfor %}{% endfor %}</span>
+        {%- endfor %}
+      </div>
+    </div>
     <div class="footer__top">
       <img class="footer__logo" src="/assets/img/logo.png" alt="{{ site.title }}" width="1600" height="800" loading="lazy">
       <ol class="contents contents--footer">
         {%- for item in nav %}
-        <li><a href="{{ item.url }}"><span>{{ item.label }}</span><span class="contents__n">{{ loop.index | pad }}</span></a></li>
+        <li><a href="{{ item.url }}" data-scene="{{ item.label }}"><span>{{ item.label }}</span><span class="contents__n">{{ loop.index | pad }}</span></a></li>
         {%- endfor %}
       </ol>
     </div>
@@ -70,6 +96,6 @@
     </div>
   </footer>
 
-  <script src="/assets/js/site.js" defer></script>
+  <script src="/assets/js/site.js" defer onerror="document.documentElement.classList.remove('js','is-entering')"></script>
 </body>
 </html>

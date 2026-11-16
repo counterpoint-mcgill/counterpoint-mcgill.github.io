@@ -15,11 +15,22 @@ permalink: /
   </div>
 </section>
 
+{# Moving ticker of the latest headlines #}
+{% if posts.length %}
+<div class="marquee marquee--ticker mono" aria-hidden="true">
+  <div class="marquee__track">
+    {%- for half in range(2) %}
+    <span>{% for n in range(3) %}{% for post in posts | limit(5) %}{{ post.data.title }} <i></i> {% endfor %}{% endfor %}</span>
+    {%- endfor %}
+  </div>
+</div>
+{% endif %}
+
 {% if lead %}
 {%- set leadCol = columns | findColumn(lead.data.column) if lead.data.column -%}
 <section class="lead wrap" aria-labelledby="lead-title">
   <p class="section-label mono"><span>Latest</span><span>{{ lead.date | readableDate }}</span></p>
-  <a class="lead__link" href="{{ lead.url }}">
+  <a class="lead__link" href="{{ lead.url }}" data-scene="{{ lead.data.title }}">
     <div class="lead__text">
       <p class="mono{% if leadCol %} is-special{% endif %}">{{ leadCol.title if leadCol else "Article" }}</p>
       <h2 class="lead__title" id="lead-title">{{ lead.data.title }}</h2>
