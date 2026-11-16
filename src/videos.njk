@@ -4,9 +4,12 @@ title: Videos
 description: Videos from Counterpoint.
 permalink: /videos/
 ---
-<section class="page-head wrap">
-  <p class="section-label mono"><span>Watch</span><span>{{ videos.length | pad }} {{ "video" if videos.length == 1 else "videos" }}</span></p>
-  <h1 class="page-title">Videos</h1>
+<section class="page-head page-head--band tone-ruby">
+  <div class="wrap">
+    <p class="section-label mono"><span>Watch</span><span>{{ videos.length | pad }} {{ "video" if videos.length == 1 else "videos" }}</span></p>
+    <h1 class="page-title">Videos</h1>
+    <div class="wave" aria-hidden="true">{{ "Videos" | wave | safe }}</div>
+  </div>
 </section>
 
 <section class="wrap">

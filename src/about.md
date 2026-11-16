@@ -2,6 +2,7 @@
 layout: layouts/page.njk
 title: About us
 label: About
+tone: gray
 permalink: /about/
 description: About Counterpoint.
 ---

@@ -167,7 +167,7 @@
   $$(".lead__link .cover-wrap, .article__cover .cover-wrap").forEach(function (el) {
     el.classList.add("rv-clip");
   });
-  $$(".hero__logo").forEach(function (el) {
+  $$(".hero__logo, .page-head .wave").forEach(function (el) {
     el.classList.add("rv-open");
   });
 
@@ -302,52 +302,6 @@
   window.addEventListener("resize", onScroll);
   frame();
 
-  /* Article index: a picture follows the cursor */
-
-  if (window.matchMedia("(hover: hover) and (pointer: fine)").matches) {
-    var rows = $$(".row a[data-cover]");
-    if (rows.length) {
-      var peek = document.createElement("div");
-      var peekImg = document.createElement("img");
-      peek.className = "peek";
-      peek.setAttribute("aria-hidden", "true");
-      peekImg.alt = "";
-      peek.appendChild(peekImg);
-      document.body.appendChild(peek);
-      var tx = 0, ty = 0, px = 0, py = 0, following = false;
-      var follow = function () {
-        px += (tx - px) * 0.14;
-        py += (ty - py) * 0.14;
-        peek.style.transform = "translate3d(" + px.toFixed(1) + "px," + py.toFixed(1) + "px,0) rotate(" + ((tx - px) * 0.04).toFixed(2) + "deg)";
-        if (following) requestAnimationFrame(follow);
-      };
-      rows.forEach(function (a) {
-        a.addEventListener("mouseenter", function (e) {
-          peekImg.src = a.dataset.cover;
-          if (!following) {
-            px = e.clientX + 24;
-            py = e.clientY - 110;
-          }
-          peek.classList.add("is-on");
-          if (!following) {
-            following = true;
-            requestAnimationFrame(follow);
-          }
-        });
-        a.addEventListener("mousemove", function (e) {
-          tx = Math.min(e.clientX + 24, window.innerWidth - peek.offsetWidth - 16);
-          ty = e.clientY - 110;
-        });
-        a.addEventListener("mouseleave", function () {
-          peek.classList.remove("is-on");
-          setTimeout(function () {
-            if (!peek.classList.contains("is-on")) following = false;
-          }, 400);
-        });
-      });
-    }
-  }
-
   /* Scene changes: a curtain rises over the page before moving on */
 
   var curtainLabel = document.querySelector(".curtain__label");
@@ -362,7 +316,7 @@
     if (root.classList.contains("is-leaving")) return;
     if (curtainLabel) curtainLabel.textContent = a.dataset.scene || "";
     try {
-      sessionStorage.setItem("cp-scene", "1");
+      sessionStorage.setItem("cp-scene", a.dataset.scene || "");
     } catch (err) {}
     root.classList.remove("is-entering");
     root.classList.add("is-leaving");

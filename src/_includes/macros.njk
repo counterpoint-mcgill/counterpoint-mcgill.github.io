@@ -2,11 +2,15 @@
 {% macro row(post, n, columns) %}
 {%- set col = columns | findColumn(post.data.column) if post.data.column -%}
 <li class="row">
-  <a href="{{ post.url }}" data-scene="{{ post.data.title }}" data-cover="{{ (post.data.image or ('/assets/covers/' + post.fileSlug + '.svg')) | url }}">
+  <a href="{{ post.url }}" data-scene="{{ post.data.title }}">
     <span class="row__n mono">{{ n | pad }}</span>
-    <span class="row__t">{{ post.data.title }}</span>
+    <span class="row__t"><span class="disc" aria-hidden="true"></span><span class="row__tt">{{ post.data.title }}</span></span>
     <span class="row__k mono{% if col %} is-special{% endif %}">{{ col.title if col else "Article" }}</span>
     <span class="row__d mono">{{ post.date | readableDate }}</span>
+    <span class="row__more" aria-hidden="true"><span class="row__more-in">
+      <span class="row__deck">{{ post.data.description or "Read the piece" }} &rarr;</span>
+      <img class="row__wave" src="/assets/waves/{{ post.fileSlug }}.svg" alt="" width="1600" height="140" loading="lazy">
+    </span></span>
   </a>
 </li>
 {% endmacro %}

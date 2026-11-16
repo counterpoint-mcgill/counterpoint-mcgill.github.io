@@ -28,9 +28,11 @@
     (function (d) {
       d.classList.add("js");
       try {
-        if (sessionStorage.getItem("cp-scene")) {
+        var scene = sessionStorage.getItem("cp-scene");
+        if (scene !== null) {
           sessionStorage.removeItem("cp-scene");
           d.classList.add("is-entering");
+          window.cpScene = scene;
         }
       } catch (e) {}
     })(document.documentElement);
@@ -43,6 +45,10 @@
     <div class="curtain__panel curtain__panel--red"></div>
     <div class="curtain__panel curtain__panel--black"><span class="curtain__label">{{ title or site.title }}</span></div>
   </div>
+  <script>
+    /* Keep the curtain showing the same words it had on the page we came from */
+    if (window.cpScene != null) document.querySelector(".curtain__label").textContent = window.cpScene;
+  </script>
 
   <header class="masthead">
     <a class="wordmark" href="/" aria-label="{{ site.title }} — home">Counterpoint<span aria-hidden="true">.</span></a>

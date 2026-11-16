@@ -16,6 +16,7 @@ eleventyComputed:
     <p class="section-label mono"><span>{{ column.label or "Column" }}</span><span>{{ posts.length | pad }} {{ "entry" if posts.length == 1 else "entries" }}</span></p>
     <h1 class="page-title">{{ column.title }}</h1>
     <p class="page-deck">{{ column.description }}</p>
+    <div class="wave" aria-hidden="true">{{ column.title | wave | safe }}</div>
   </div>
 </section>
 

@@ -1134,28 +1134,137 @@ main > .marquee + section {
   text-transform: uppercase;
 }
 
-/* Thumbnail that follows the cursor over the article index */
-.peek {
-  position: fixed;
-  top: 0;
-  left: 0;
-  z-index: 30;
-  width: min(26vw, 380px);
-  aspect-ratio: 16 / 9;
-  overflow: hidden;
-  pointer-events: none;
-  opacity: 0;
-  scale: 0.7;
-  transition: opacity 0.3s, scale 0.5s var(--ease);
+/* Each page's own waveform, and the colour of its heading band */
+.wave {
+  margin-top: clamp(24px, 4vw, 56px);
 }
-.peek.is-on {
-  opacity: 1;
-  scale: 1;
-}
-.peek img {
+.wave svg {
+  display: block;
   width: 100%;
-  height: 100%;
-  object-fit: cover;
+  height: auto;
+}
+.wave--red {
+  color: var(--red);
+}
+.tone-ruby {
+  background: var(--ruby);
+  color: var(--paper);
+}
+.tone-red {
+  background: var(--red);
+  color: var(--paper);
+}
+.tone-gray {
+  background: var(--gray);
+  color: var(--ink);
+}
+
+/* Article index rows: a record that spins beside the title, and a fold-out
+   with the summary and the article's waveform. Shown for mouse and keyboard. */
+.disc,
+.row__more {
+  display: none;
+}
+@media (hover: hover) and (pointer: fine) {
+  .row a {
+    row-gap: 0;
+  }
+  .row__t {
+    position: relative;
+  }
+  .row__tt {
+    display: block;
+    transition: padding 0.55s var(--ease);
+  }
+  .disc {
+    display: block;
+    position: absolute;
+    left: 0;
+    top: 0.08em;
+    width: 0.8em;
+    height: 0.8em;
+    border-radius: 50%;
+    background:
+      radial-gradient(circle at 50% 50%, var(--paper) 0 5%, transparent 5.5%),
+      radial-gradient(circle at 50% 33%, var(--ink) 0 3.5%, transparent 4%),
+      radial-gradient(circle at 50% 50%, var(--red) 0 31%, transparent 31.5%),
+      conic-gradient(transparent 0 25deg, rgb(255 255 255 / 0.3) 45deg, transparent 65deg 205deg, rgb(255 255 255 / 0.3) 225deg, transparent 245deg),
+      repeating-radial-gradient(circle at 50% 50%, #0a0a0a 0 1.5px, #343030 1.5px 2.5px);
+    opacity: 0;
+    scale: 0.3;
+    transition: opacity 0.3s, scale 0.55s var(--bump);
+    animation: spin 1.8s linear infinite paused;
+  }
+  .row a:hover .disc,
+  .row a:focus-visible .disc {
+    opacity: 1;
+    scale: 1;
+    animation-play-state: running;
+  }
+  .row a:hover .row__tt,
+  .row a:focus-visible .row__tt {
+    padding-left: 0.98em;
+  }
+  .row__more {
+    display: grid;
+    grid-column: 1 / -1;
+    grid-template-rows: 0fr;
+    transition: grid-template-rows 0.55s var(--ease);
+  }
+  .row a:hover .row__more,
+  .row a:focus-visible .row__more {
+    grid-template-rows: 1fr;
+  }
+  .row__more-in {
+    display: grid;
+    grid-template-columns: 56px minmax(0, 46ch) minmax(0, 1fr);
+    gap: var(--gap);
+    align-items: center;
+    min-height: 0;
+    overflow: hidden;
+    color: var(--ink);
+  }
+  .row__deck {
+    grid-column: 2;
+    max-width: 52ch;
+    padding: 14px 0 12px;
+    font-size: 16px;
+    line-height: 1.3;
+    opacity: 0;
+    transform: translateY(10px);
+    transition: opacity 0.4s, transform 0.55s var(--ease);
+  }
+  .row__wave {
+    width: 100%;
+    height: 52px;
+    object-fit: cover;
+    clip-path: inset(0 100% 0 0);
+    transition: clip-path 0.7s var(--inout);
+  }
+  .row a:hover .row__deck,
+  .row a:focus-visible .row__deck {
+    opacity: 1;
+    transform: none;
+    transition-delay: 0.1s;
+  }
+  .row a:hover .row__wave,
+  .row a:focus-visible .row__wave {
+    clip-path: inset(0 0 0 0);
+    transition-delay: 0.1s;
+  }
+}
+@media (hover: hover) and (pointer: fine) and (max-width: 900px) {
+  .row__more-in {
+    grid-template-columns: 36px minmax(0, 1fr);
+  }
+  .row__wave {
+    display: none;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .disc {
+    animation: none;
+  }
 }
 
 /* Scene-change curtain */
@@ -1201,6 +1310,9 @@ main > .marquee + section {
 @keyframes label-in {
   from { opacity: 0; transform: translateY(0.5em); }
   to { opacity: 1; transform: none; }
+}
+@keyframes spin {
+  to { rotate: 360deg; }
 }
 @keyframes marquee {
   to { transform: translateX(-50%); }
@@ -1254,6 +1366,12 @@ main > .marquee + section {
   .menu:not([hidden]) li {
     animation: menu-item 0.7s var(--ease) both;
     animation-delay: calc(0.18s + var(--n, 0) * 55ms);
+  }
+
+  /* Headlines stay out of sight until they are ready to bump up, so they
+     never flash on and off while the page is still loading */
+  .js :is(.page-title, .article__title, .lead__title, .band__title, .soon__big):not(.split) {
+    visibility: hidden;
   }
 
   /* Headlines: each word bumps up from behind a mask */

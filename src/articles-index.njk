@@ -12,6 +12,7 @@ permalink: /articles/
     <a href="/articles/" aria-current="page">All</a>
     {%- for c in columns %}<a class="is-special" href="/{{ c.slug }}/">{{ c.title }}</a>{% endfor %}
   </p>
+  <div class="wave" aria-hidden="true">{{ "Articles" | wave | safe }}</div>
 </section>
 
 <section class="wrap">

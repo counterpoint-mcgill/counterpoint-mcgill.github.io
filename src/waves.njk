@@ -1,0 +1,9 @@
+---
+pagination:
+  data: collections.posts
+  size: 1
+  alias: post
+permalink: "/assets/waves/{{ post.fileSlug }}.svg"
+eleventyExcludeFromCollections: true
+---
+{{ post.data.title | wave("#C4001A") | safe }}

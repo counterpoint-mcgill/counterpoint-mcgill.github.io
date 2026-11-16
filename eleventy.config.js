@@ -1,7 +1,7 @@
 import { HtmlBasePlugin } from "@11ty/eleventy";
 import { feedPlugin } from "@11ty/eleventy-plugin-rss";
 import { readFileSync } from "node:fs";
-import halftone from "./lib/halftone.js";
+import halftone, { wave } from "./lib/halftone.js";
 
 const site = JSON.parse(readFileSync("./src/_data/site.json", "utf8"));
 const FONT_DIR = "node_modules/@fontsource/courier-prime/files";
@@ -72,6 +72,9 @@ export default function (cfg) {
 
   // Generated halftone artwork for articles that have no photo
   cfg.addFilter("halftone", (title, variant) => halftone(title, variant));
+
+  // A strip of the same dots, used as each page's own signature
+  cfg.addFilter("wave", (title, color) => wave(title, color));
 
   // Pulls the video id out of any normal YouTube link
   cfg.addFilter("youtubeId", (url) => {
