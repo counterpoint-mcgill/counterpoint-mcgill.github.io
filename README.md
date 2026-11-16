@@ -4,7 +4,7 @@ The Counterpoint website. A static site built with [Eleventy](https://www.11ty.d
 
 ## The admin page (for the team)
 
-Editors do not need GitHub. They go to **https://aaronshahh.github.io/counterpoint/admin/**, type the team password, and get an editor where they can:
+Editors do not need GitHub. They go to **https://counterpoint-mcgill.github.io/admin/**, type the team password, and get an editor where they can:
 
 - write, edit and delete **Articles** (to make one an interview, pick Interviews under "Column"), with pictures uploaded straight from their computer or phone
 - add **Videos** by pasting a YouTube link

@@ -3,11 +3,11 @@
 
 backend:
   name: github
-  repo: Aaronshahh/counterpoint
+  repo: counterpoint-mcgill/counterpoint-mcgill.github.io
   branch: main
 
-site_url: https://aaronshahh.github.io/counterpoint/
-display_url: https://aaronshahh.github.io/counterpoint/
+site_url: https://counterpoint-mcgill.github.io/
+display_url: https://counterpoint-mcgill.github.io/
 logo:
   src: ../assets/img/favicon.svg
 

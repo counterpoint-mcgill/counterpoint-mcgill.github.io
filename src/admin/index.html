@@ -79,8 +79,8 @@
         <h1>Set up<i>.</i></h1>
         <p>One time only. The site needs a GitHub key so it can save the team's edits. The key is locked with the password you choose here; the team only ever types the password.</p>
         <ol>
-          <li><a id="token-link" target="_blank" rel="noopener">Create a key on GitHub</a> (sign in as the owner of the site).</li>
-          <li>Under <b>Repository access</b> pick <b>Only select repositories</b> and choose <b>counterpoint</b>.</li>
+          <li><a id="token-link" target="_blank" rel="noopener">Create a key on GitHub</a> (sign in as the owner of the site). Check that <b>Resource owner</b> says <b>counterpoint-mcgill</b>.</li>
+          <li>Under <b>Repository access</b> pick <b>Only select repositories</b> and choose <b>counterpoint-mcgill.github.io</b>.</li>
           <li>Under <b>Permissions → Repository</b>, set <b>Contents</b> to <b>Read and write</b>.</li>
           <li>Press <b>Generate token</b>, copy it, and paste it below.</li>
         </ol>
@@ -104,7 +104,7 @@
 
   <script>
   (function () {
-    var REPO = "Aaronshahh/counterpoint";
+    var REPO = "counterpoint-mcgill/counterpoint-mcgill.github.io";
     var BRANCH = "main";
     var KEY_PATH = "src/admin/key.json";
     var CMS_USER = "sveltia-cms.user";   // where the editor looks for a signed-in user
@@ -115,7 +115,7 @@
     var gate = $("gate"), unlock = $("unlock"), setup = $("setup"), loading = $("loading");
     var locked = null; // the encrypted key, once fetched
 
-    $("token-link").href = "https://github.com/settings/personal-access-tokens/new?name=Counterpoint+admin&description=Lets+the+Counterpoint+admin+page+save+edits&contents=write&expires_in=none";
+    $("token-link").href = "https://github.com/settings/personal-access-tokens/new?name=Counterpoint+admin&description=Lets+the+Counterpoint+admin+page+save+edits&target_name=counterpoint-mcgill&contents=write&expires_in=none";
 
     /* ── Encryption: the password turns into the key that opens the GitHub key ── */
 
@@ -246,7 +246,7 @@
 
       gh("", token).then(function (r) {
         if (r.status === 401) throw new Error("GitHub did not accept that key. Copy it again and retry.");
-        if (!r.ok) throw new Error("That key cannot see the counterpoint repository. Check step 2.");
+        if (!r.ok) throw new Error("That key cannot see the site's repository. Check steps 1 and 2.");
         return gh("/contents/" + KEY_PATH + "?ref=" + BRANCH, token);
       }).then(function (r) {
         return r.ok ? r.json() : {};
