@@ -1,0 +1,23 @@
+---
+layout: layouts/base.njk
+title: Videos
+description: Videos from Counterpoint.
+permalink: /videos/
+---
+<section class="page-head wrap">
+  <p class="section-label mono"><span>Watch</span><span>{{ videos.length | pad }} {{ "video" if videos.length == 1 else "videos" }}</span></p>
+  <h1 class="page-title">Videos</h1>
+</section>
+
+<section class="wrap">
+  {% if videos.length %}
+  <div class="cards cards--page cards--videos">
+    {%- for v in videos %}{% include "video.njk" %}{% endfor %}
+  </div>
+  {% else %}
+  <div class="soon">
+    <p class="soon__big">Coming soon.</p>
+    <p class="mono">Video is on its way. In the meantime, <a href="/articles/">read the latest articles &rarr;</a></p>
+  </div>
+  {% endif %}
+</section>

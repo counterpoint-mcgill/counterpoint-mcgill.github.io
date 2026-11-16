@@ -1,0 +1,10 @@
+---
+layout: layouts/base.njk
+---
+<section class="page-head wrap">
+  <p class="section-label mono"><span>{{ label or title }}</span><span>{{ site.title }}</span></p>
+  <h1 class="page-title">{{ title }}</h1>
+</section>
+<div class="prose prose--page wrap">
+{{ content | safe }}
+</div>

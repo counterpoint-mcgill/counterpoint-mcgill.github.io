@@ -1,0 +1,75 @@
+{%- set pageTitle = (title + " — " + site.title) if title else site.title -%}
+{%- set pageDesc = description or site.description -%}
+{%- set nav = [{ label: "Home", url: "/" }, { label: "Articles", url: "/articles/" }] -%}
+{%- for c in columns -%}{%- set nav = (nav.push({ label: c.title, url: "/" + c.slug + "/", special: true }), nav) -%}{%- endfor -%}
+{%- set nav = (nav.push({ label: "Videos", url: "/videos/" }, { label: "About", url: "/about/" }, { label: "Contact", url: "/contact/" }), nav) -%}
+{%- set current = navKey or page.url -%}
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>{{ pageTitle }}</title>
+  <meta name="description" content="{{ pageDesc }}">
+  <meta property="og:title" content="{{ title or site.title }}">
+  <meta property="og:description" content="{{ pageDesc }}">
+  <meta property="og:type" content="{{ 'article' if layout == 'layouts/article.njk' else 'website' }}">
+  <meta property="og:site_name" content="{{ site.title }}">
+  <meta property="og:image" content="{{ site.url }}assets/img/logo.png">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="theme-color" content="#F5F4F2">
+  <link rel="icon" href="/assets/img/favicon.svg" type="image/svg+xml">
+  <link rel="alternate" type="application/atom+xml" title="{{ site.title }}" href="/feed.xml">
+  <link rel="preload" href="/assets/fonts/courier-prime-400-normal.woff2" as="font" type="font/woff2" crossorigin>
+  <link rel="stylesheet" href="/assets/css/style.css">
+</head>
+<body>
+  <a class="skip" href="#main">Skip to content</a>
+
+  <header class="masthead">
+    <a class="wordmark" href="/" aria-label="{{ site.title }} — home">Counterpoint<span aria-hidden="true">.</span></a>
+    <nav class="nav" aria-label="Main">
+      {%- for item in nav %}
+      <a href="{{ item.url }}"{% if item.special %} class="is-special"{% endif %}{% if current == item.url %} aria-current="page"{% endif %}>{{ item.label }}</a>
+      {%- endfor %}
+    </nav>
+    <button class="menu-btn" type="button" aria-expanded="false" aria-controls="menu">Menu</button>
+  </header>
+
+  <div class="menu" id="menu" hidden>
+    <nav aria-label="Menu">
+      <p class="mono menu__head"><span>{{ site.title }}</span><span>Contents</span></p>
+      <ol class="contents">
+        {%- for item in nav %}
+        <li><a href="{{ item.url }}"{% if item.special %} class="is-special"{% endif %}><span>{{ item.label }}</span><span class="contents__n">{{ loop.index | pad }}</span></a></li>
+        {%- endfor %}
+      </ol>
+    </nav>
+  </div>
+
+  <main id="main">
+{{ content | safe }}
+  </main>
+
+  <footer class="footer">
+    <div class="footer__top">
+      <img class="footer__logo" src="/assets/img/logo.png" alt="{{ site.title }}" width="1600" height="800" loading="lazy">
+      <ol class="contents contents--footer">
+        {%- for item in nav %}
+        <li><a href="{{ item.url }}"><span>{{ item.label }}</span><span class="contents__n">{{ loop.index | pad }}</span></a></li>
+        {%- endfor %}
+      </ol>
+    </div>
+    <div class="footer__base mono">
+      <span>&copy; {{ build.year }} {{ site.title }}</span>
+      <span class="footer__links">
+        {%- if site.instagram %}<a href="https://instagram.com/{{ site.instagram }}" rel="noopener">Instagram</a>{% endif %}
+        <a href="/feed.xml">RSS</a>
+        <a href="#main">Back to top &uarr;</a>
+      </span>
+    </div>
+  </footer>
+
+  <script src="/assets/js/site.js" defer></script>
+</body>
+</html>

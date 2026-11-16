@@ -1,0 +1,45 @@
+---
+layout: layouts/base.njk
+title: Contact us
+description: Get in touch with Counterpoint.
+permalink: /contact/
+---
+<section class="page-head wrap">
+  <p class="section-label mono"><span>Contact</span><span>{{ site.title }}</span></p>
+  <h1 class="page-title">Contact us</h1>
+</section>
+
+<section class="contact wrap">
+  <dl class="meta meta--card">
+    <div><dt>For</dt><dd>Pitches, interview requests, corrections, or just to say hello.</dd></div>
+    {% if site.contactEmail and "@" in site.contactEmail %}<div><dt>E:</dt><dd><a href="mailto:{{ site.contactEmail }}">{{ site.contactEmail }}</a></dd></div>{% endif %}
+    {% if site.instagram %}<div><dt>I:</dt><dd><a href="https://instagram.com/{{ site.instagram }}" rel="noopener">@{{ site.instagram }}</a></dd></div>{% endif %}
+    {% if site.location %}<div><dt>A.</dt><dd>{{ site.location }}</dd></div>{% endif %}
+  </dl>
+
+  {% if site.contactEmail %}
+  <form class="form" action="https://formsubmit.co/{{ site.contactEmail }}" method="POST" data-ajax="https://formsubmit.co/ajax/{{ site.contactEmail }}">
+    <input type="hidden" name="_subject" value="New message from the Counterpoint website">
+    <input type="hidden" name="_template" value="table">
+    <input type="hidden" name="_captcha" value="false">
+    <input type="hidden" name="_next" value="{{ site.url }}contact/?sent=1">
+    <p class="form__trap" aria-hidden="true"><label>Leave this empty <input type="text" name="_honey" tabindex="-1" autocomplete="off"></label></p>
+
+    <label class="field"><span class="mono">Name</span><input type="text" name="name" autocomplete="name" required></label>
+    <label class="field"><span class="mono">Email</span><input type="email" name="email" autocomplete="email" required></label>
+    <label class="field"><span class="mono">Regarding</span>
+      <select name="regarding">
+        <option>General</option>
+        <option>Pitch an article</option>
+        <option>Interview request</option>
+        <option>Correction</option>
+      </select>
+    </label>
+    <label class="field"><span class="mono">Message</span><textarea name="message" rows="6" required></textarea></label>
+    <button class="btn btn--red" type="submit">Send message &rarr;</button>
+    <p class="form__status mono" role="status" aria-live="polite"></p>
+  </form>
+  {% else %}
+  <p class="empty mono">The contact form is not connected yet. Add an email address as "contactEmail" in src/_data/site.json to switch it on.</p>
+  {% endif %}
+</section>

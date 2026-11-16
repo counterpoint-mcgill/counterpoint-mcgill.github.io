@@ -1,0 +1,30 @@
+---
+layout: layouts/base.njk
+pagination:
+  data: columns
+  size: 1
+  alias: column
+permalink: "/{{ column.slug }}/"
+eleventyComputed:
+  title: "{{ column.title }}"
+  description: "{{ column.description }}"
+---
+{%- import "macros.njk" as m -%}
+{%- set posts = collections.posts | inColumn(column.slug) -%}
+<section class="page-head page-head--band">
+  <div class="wrap">
+    <p class="section-label mono"><span>{{ column.label or "Column" }}</span><span>{{ posts.length | pad }} {{ "entry" if posts.length == 1 else "entries" }}</span></p>
+    <h1 class="page-title">{{ column.title }}</h1>
+    <p class="page-deck">{{ column.description }}</p>
+  </div>
+</section>
+
+<section class="wrap">
+  {% if posts.length %}
+  <div class="cards cards--page">
+    {%- for post in posts %}{{ m.card(post, columns) }}{% endfor %}
+  </div>
+  {% else %}
+  <p class="empty mono">Nothing published here yet. Check back soon.</p>
+  {% endif %}
+</section>

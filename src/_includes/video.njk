@@ -1,0 +1,14 @@
+{%- set vid = v.url | youtubeId -%}
+<article class="card video">
+  {% if vid %}
+  <button class="video__frame" type="button" data-video="{{ vid }}" aria-label="Play: {{ v.title }}">
+    <img src="https://i.ytimg.com/vi/{{ vid }}/hqdefault.jpg" alt="" loading="lazy" width="480" height="360">
+    <span class="video__play mono">Play &#9654;</span>
+  </button>
+  {% else %}
+  <a class="video__frame video__frame--link" href="{{ v.url }}" rel="noopener"><span class="video__play mono">Watch &rarr;</span></a>
+  {% endif %}
+  <p class="card__meta mono"><span>Video</span>{% if v.date %}<span>{{ v.date | readableDate }}</span>{% endif %}</p>
+  <h3 class="card__title">{{ v.title }}</h3>
+  {% if v.description %}<p class="card__deck">{{ v.description }}</p>{% endif %}
+</article>

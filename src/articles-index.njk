@@ -1,0 +1,27 @@
+---
+layout: layouts/base.njk
+title: Articles
+permalink: /articles/
+---
+{%- import "macros.njk" as m -%}
+{%- set posts = collections.posts -%}
+<section class="page-head wrap">
+  <p class="section-label mono"><span>Index</span><span>{{ posts.length | pad }} {{ "entry" if posts.length == 1 else "entries" }}</span></p>
+  <h1 class="page-title">Articles</h1>
+  <p class="filters mono">
+    <a href="/articles/" aria-current="page">All</a>
+    {%- for c in columns %}<a class="is-special" href="/{{ c.slug }}/">{{ c.title }}</a>{% endfor %}
+  </p>
+</section>
+
+<section class="wrap">
+  {% if posts.length %}
+  <ol class="rows">
+    {%- for post in posts %}
+    {{ m.row(post, posts.length - loop.index0, columns) }}
+    {%- endfor %}
+  </ol>
+  {% else %}
+  <p class="empty mono">Nothing published yet. Check back soon.</p>
+  {% endif %}
+</section>
